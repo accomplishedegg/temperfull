@@ -46,7 +46,7 @@
                                 </span>
                             </td>
                             <td>
-                                @if (lead.status === 'pending') {
+                                @if (lead.status === 'pending' && auth.currentUser.role === 'admin') {
                                 <button class="btn btn-sm btn-success me-1" (click)="processLead(lead.id, 'approved')"
                                     title="Approve">Approve
                                     <i class="bi bi-check-lg"></i>

@@ -6,7 +6,8 @@
             <input type="text" class="form-control" placeholder="Search users..." [(ngModel)]="searchQuery"
                 (keyup.enter)="search()">
             <button class="btn btn-primary" (click)="search()">Search</button>
-            <button class="btn btn-success" (click)="openModal(content)">+ Add New</button>
+            <button *ngIf="auth.currentUser.role == 'admin'" class="btn btn-success" (click)="openModal(content)">+ Add
+                New</button>
         </div>
     </div>
 
@@ -56,9 +57,10 @@
                         </td>
                         <td class="text-end pe-4">
                             <button class="btn btn-sm btn-outline-primary me-2" (click)="openModal(content, user)">
-                                Edit
+                                {{ auth.currentUser.role == 'admin' ? 'Edit' : 'View' }}
                             </button>
-                            <button class="btn btn-sm btn-outline-danger" (click)="deleteUser(user.id)">
+                            <button *ngIf="auth.currentUser.role == 'admin'" class="btn btn-sm btn-outline-danger"
+                                (click)="deleteUser(user.id)">
                                 Delete
                             </button>
                         </td>
@@ -160,7 +162,7 @@
 
         <!-- Subscriptions Tab -->
         <div [class.d-none]="activeTab !== 'subscriptions'">
-            <div class="card bg-light mb-3 p-3">
+            <div *ngIf="auth.currentUser.role == 'admin'" class="card bg-light mb-3 p-3">
                 <h6 class="fw-bold">{{ isSubsEditMode ? 'Edit Subscription' : 'Add Subscription' }}</h6>
                 <div class="row g-2">
                     <div class="col-md-4">
@@ -201,7 +203,7 @@
                             <th>Start</th>
                             <th>End</th>
                             <th>Status</th>
-                            <th>Actions</th>
+                            <th *ngIf="auth.currentUser.role == 'admin'">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -216,7 +218,7 @@
                                     {{ sub.is_active ? 'Active' : 'Inactive' }}
                                 </span>
                             </td>
-                            <td>
+                            <td *ngIf="auth.currentUser.role == 'admin'">
                                 <button class="btn btn-xs btn-link p-0 text-decoration-none me-2"
                                     (click)="editSubscription(sub)">Edit</button>
                                 <button class="btn btn-xs btn-link p-0 text-decoration-none text-danger"
@@ -327,7 +329,8 @@
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="modal.dismiss('Close click')">Cancel</button>
-        <button type="button" class="btn btn-primary" *ngIf="activeTab === 'details'" (click)="saveUser(modal)">Save
+        <button type="button" class="btn btn-primary"
+            *ngIf="activeTab === 'details' && auth.currentUser.role == 'admin'" (click)="saveUser(modal)">Save
             Details</button>
     </div>
 </ng-template>

@@ -37,8 +37,9 @@
                                 </span>
                             </td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary me-1"
-                                    (click)="openEditModal(planModal, plan)" title="Edit">Edit
+                                <button *ngIf="auth.currentUser.role == 'admin'"
+                                    class="btn btn-sm btn-outline-primary me-1" (click)="openEditModal(planModal, plan)"
+                                    title="Edit">Edit
                                     <i class="bi bi-pencil"></i>
                                 </button>
                             </td>

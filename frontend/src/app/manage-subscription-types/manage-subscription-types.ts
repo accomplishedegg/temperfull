@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UserService } from '../services/user.service';
 import { NavbarComponent } from '../navbar/navbar.component';
+import { AuthService } from '../services/auth';
 
 @Component({
     selector: 'app-manage-subscription-types',
@@ -14,6 +15,7 @@ import { NavbarComponent } from '../navbar/navbar.component';
 export class ManageSubscriptionTypesComponent implements OnInit {
     private userService = inject(UserService);
     private modalService = inject(NgbModal);
+    public auth = inject(AuthService);
 
     plans = signal<any[]>([]);
 

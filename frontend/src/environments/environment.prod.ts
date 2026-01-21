@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    apiUrl: 'https://temper.fwh.is' // Production URL (adjust as needed)
+    apiUrl: 'http://localhost' // Production URL (adjust as needed)
 };

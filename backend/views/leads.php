@@ -22,7 +22,11 @@ function handle_leads_crud($sqlManager, $models, $data) {
             $offset = ($page - 1) * $limit;
             
             // Use standard LeadForm model getAll/query logic
-            $result = $models['LeadForm']->getAll([], $limit, $offset, $q);
+            if($currentUser['role'] == 'sales_manager') {
+                $result = $models['LeadForm']->getAll(['created_by' => $_SESSION['user_id']], $limit, $offset, $q);
+            } else {
+                $result = $models['LeadForm']->getAll([], $limit, $offset, $q);
+            }
             
             // Optional: Enrich with Subscription Name or User Name (Creator)?
             // For now standard is fine.

@@ -5,6 +5,7 @@ import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { LeadService } from '../services/lead.service';
 import { UserService } from '../services/user.service';
 import { NavbarComponent } from '../navbar/navbar.component';
+import { AuthService } from '../services/auth';
 
 @Component({
     selector: 'app-manage-leads',
@@ -21,6 +22,7 @@ export class ManageLeadsComponent implements OnInit {
     private leadService = inject(LeadService);
     private userService = inject(UserService);
     private modalService = inject(NgbModal);
+    public auth = inject(AuthService);
 
     leads = signal<any[]>([]);
     plans = signal<any[]>([]);

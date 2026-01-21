@@ -1,10 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService, User } from '../services/user.service';
 import { NgbModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { NavbarComponent } from '../navbar/navbar.component';
+import { AuthService } from '../services/auth';
 @Component({
   selector: 'app-manage-users',
   standalone: true,
@@ -13,6 +14,8 @@ import { NavbarComponent } from '../navbar/navbar.component';
   styleUrl: './manage-users.css'
 })
 export class ManageUsersComponent {
+
+  public auth = inject(AuthService);
   users = signal<User[]>([]);
   total = signal(0);
   page = signal(1);
