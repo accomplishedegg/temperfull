@@ -1,0 +1,333 @@
+<app-navbar></app-navbar>
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Manage Users</h2>
+        <div class="d-flex gap-2">
+            <input type="text" class="form-control" placeholder="Search users..." [(ngModel)]="searchQuery"
+                (keyup.enter)="search()">
+            <button class="btn btn-primary" (click)="search()">Search</button>
+            <button class="btn btn-success" (click)="openModal(content)">+ Add New</button>
+        </div>
+    </div>
+
+    @if (loading()) {
+    <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    } @else {
+    @if (errorMessage()) {
+    <div class="alert alert-danger mb-4" role="alert">
+        {{ errorMessage() }}
+    </div>
+    }
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th scope="col" class="ps-4">ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Email/Phone</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Status</th>
+                        <th scope="col" class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (user of users(); track user.id) {
+                    <tr>
+                        <td class="ps-4 text-muted">#{{ user.id }}</td>
+                        <td class="fw-bold">{{ user.name }}</td>
+                        <td>
+                            <div>{{ user.email }}</div>
+                            <small class="text-muted">{{ user.phone_number }}</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-info text-dark">{{ user.role }}</span>
+                        </td>
+                        <td>
+                            <span class="badge rounded-pill" [class.bg-success]="user.is_active"
+                                [class.bg-secondary]="!user.is_active">
+                                {{ user.is_active ? 'Active' : 'Inactive' }}
+                            </span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <button class="btn btn-sm btn-outline-primary me-2" (click)="openModal(content, user)">
+                                Edit
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" (click)="deleteUser(user.id)">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                    } @empty {
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">No users found.</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer bg-white d-flex justify-content-end py-3">
+            <ngb-pagination [(page)]="page" [pageSize]="pageSize()" [collectionSize]="total()"
+                (pageChange)="onPageChange($event)" [maxSize]="5" [rotate]="true" [ellipses]="false"
+                [boundaryLinks]="true">
+            </ngb-pagination>
+        </div>
+    </div>
+    }
+</div>
+
+<!-- Modal Template -->
+<ng-template #content let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title">{{ modalTitle }}</h4>
+        <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+    </div>
+    <div class="modal-body">
+
+        <!-- Tabs -->
+        <ul class="nav nav-tabs mb-3" *ngIf="isEditMode">
+            <li class="nav-item">
+                <a class="nav-link" [class.active]="activeTab === 'details'" (click)="setActiveTab('details')"
+                    role="button">Details</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" [class.active]="activeTab === 'subscriptions'"
+                    (click)="setActiveTab('subscriptions')" role="button">Subscriptions</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" [class.active]="activeTab === 'sessions'" (click)="setActiveTab('sessions')"
+                    role="button">Sessions</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" [class.active]="activeTab === 'otps'" (click)="setActiveTab('otps')"
+                    role="button">OTP</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" [class.active]="activeTab === 'logs'" (click)="setActiveTab('logs')"
+                    role="button">Logs</a>
+            </li>
+        </ul>
+
+        <!-- Details Tab -->
+        <div [class.d-none]="activeTab !== 'details'">
+            <form>
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="name" [(ngModel)]="selectedUser.name" name="name"
+                        required>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" [(ngModel)]="selectedUser.email"
+                            name="email" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="phone" class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="phone" [(ngModel)]="selectedUser.phone_number"
+                            name="phone">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="role" class="form-label">Role</label>
+                    <select class="form-select" id="role" [(ngModel)]="selectedUser.role" name="role">
+                        @for (role of roles; track role) {
+                        <option [value]="role">{{ role }}</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password {{ isEditMode ? '(Leave blank to keep current)' :
+                        '' }}</label>
+                    <input type="password" class="form-control" id="password" [(ngModel)]="selectedUser.password"
+                        name="password">
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="isActive" [(ngModel)]="selectedUser.is_active"
+                        name="isActive">
+                    <label class="form-check-label" for="isActive">Is Active</label>
+                </div>
+            </form>
+        </div>
+
+        <!-- Subscriptions Tab -->
+        <div [class.d-none]="activeTab !== 'subscriptions'">
+            <div class="card bg-light mb-3 p-3">
+                <h6 class="fw-bold">{{ isSubsEditMode ? 'Edit Subscription' : 'Add Subscription' }}</h6>
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <label class="form-label small">Plan</label>
+                        <select class="form-select form-select-sm" [(ngModel)]="editingSubscription.subscription_id"
+                            (change)="onSubscriptionPlanChange()">
+                            <option value="">Select Plan</option>
+                            @for (plan of plans(); track plan.id) {
+                            <option [value]="plan.id">{{ plan.name }} ({{ plan.number_of_days }} days)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small">Start</label>
+                        <input type="date" class="form-control form-control-sm"
+                            [(ngModel)]="editingSubscription.start_date" (change)="onSubscriptionPlanChange()">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small">End</label>
+                        <input type="date" class="form-control form-control-sm"
+                            [(ngModel)]="editingSubscription.end_date">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="btn btn-sm btn-primary w-100" (click)="saveSubscription()">
+                            {{ isSubsEditMode ? 'Update' : 'Add' }}
+                        </button>
+                        <button *ngIf="isSubsEditMode" class="btn btn-sm btn-outline-secondary w-100 mt-1"
+                            (click)="resetSubscriptionForm()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Plan</th>
+                            <th>Start</th>
+                            <th>End</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (sub of userSubscriptions(); track sub.id) {
+                        <tr>
+                            <td>{{ sub.plan_name }}</td>
+                            <td>{{ sub.start_date }}</td>
+                            <td>{{ sub.end_date }}</td>
+                            <td>
+                                <span class="badge" [class.bg-success]="sub.is_active"
+                                    [class.bg-secondary]="!sub.is_active">
+                                    {{ sub.is_active ? 'Active' : 'Inactive' }}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-xs btn-link p-0 text-decoration-none me-2"
+                                    (click)="editSubscription(sub)">Edit</button>
+                                <button class="btn btn-xs btn-link p-0 text-decoration-none text-danger"
+                                    (click)="deleteSubscription(sub.id)">Del</button>
+                            </td>
+                        </tr>
+                        } @empty {
+                        <tr>
+                            <td colspan="5" class="text-center small text-muted">No subscriptions found.</td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Sessions Tab -->
+        <div [class.d-none]="activeTab !== 'sessions'">
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered table-striped small">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User Agent</th>
+                            <th>IP</th>
+                            <th>Created</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (session of userSessions(); track session.id) {
+                        <tr>
+                            <td>{{ session.id }}</td>
+                            <td class="text-truncate" style="max-width: 151px;" title="{{session.user_agent}}">{{
+                                session.device }}</td>
+                            <td>{{ session.ip }}</td>
+                            <td>{{ session.created_at }}</td>
+                            <td>{{ session.is_active ? 'Active' : 'Closed' }}</td>
+                        </tr>
+                        } @empty { <tr>
+                            <td colspan="5" class="text-center text-muted">No sessions found.</td>
+                        </tr> }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- OTPs Tab -->
+        <div [class.d-none]="activeTab !== 'otps'">
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered table-striped small">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Code</th>
+                            <th>Type</th>
+                            <th>Used?</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (otp of userOtps(); track otp.id) {
+                        <tr>
+                            <td>{{ otp.id }}</td>
+                            <td>{{ otp.otp }}</td>
+                            <td>{{ otp.type }}</td>
+                            <td>{{ otp.is_used ? 'Yes' : 'No' }}</td>
+                            <td>{{ otp.created_at }}</td>
+                        </tr>
+                        } @empty { <tr>
+                            <td colspan="5" class="text-center text-muted">No OTPs found.</td>
+                        </tr> }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Logs Tab -->
+        <div [class.d-none]="activeTab !== 'logs'">
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered table-striped small">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Action</th>
+                            <th>IP</th>
+                            <th>Details</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (log of userLogs(); track log.id) {
+                        <tr>
+                            <td>{{ log.id }}</td>
+                            <td>{{ log.action_name }}</td>
+                            <td>{{ log.ip_address }}</td>
+                            <td class="text-truncate" style="max-width: 151px;">{{ log.details || '-' }}</td>
+                            <td>{{ log.created_at }}</td>
+                        </tr>
+                        } @empty { <tr>
+                            <td colspan="5" class="text-center text-muted">No logs found.</td>
+                        </tr> }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="modal.dismiss('Close click')">Cancel</button>
+        <button type="button" class="btn btn-primary" *ngIf="activeTab === 'details'" (click)="saveUser(modal)">Save
+            Details</button>
+    </div>
+</ng-template>

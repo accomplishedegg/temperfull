@@ -1,0 +1,110 @@
+<app-navbar></app-navbar>
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Manage Temper</h2>
+        <div class="d-flex gap-2">
+            <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="searchQuery"
+                (keyup.enter)="search()">
+            <button class="btn btn-primary" (click)="search()">Search</button>
+            <button class="btn btn-success" (click)="openModal(content)">+ Add New</button>
+        </div>
+    </div>
+
+    @if (loading()) {
+    <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    } @else {
+    @if (errorMessage()) {
+    <div class="alert alert-danger mb-4" role="alert">
+        {{ errorMessage() }}
+    </div>
+    }
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th scope="col" class="ps-4">ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Supported Phones</th>
+                        <th scope="col" class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (temper of tempers(); track temper.id) {
+                    <tr>
+                        <td class="ps-4 text-muted">#{{ temper.id }}</td>
+                        <td class="fw-bold">{{ temper.name }}</td>
+                        <td>
+                            <span class="badge rounded-pill" [class.bg-success]="temper.is_active"
+                                [class.bg-secondary]="!temper.is_active">
+                                {{ temper.is_active ? 'Active' : 'Inactive' }}
+                            </span>
+                        </td>
+                        <td>
+                            <small class="text-muted text-truncate d-inline-block" style="max-width: 250px;">
+                                {{ (temper.supportedPhones || []).join(', ') }}
+                            </small>
+                        </td>
+                        <td class="text-end pe-4">
+                            <button class="btn btn-sm btn-outline-primary me-2" (click)="openModal(content, temper)">
+                                Edit
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" (click)="deleteTemper(temper.id)">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                    } @empty {
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">Thinking... No tempers found.</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer bg-white d-flex justify-content-end py-3">
+            <ngb-pagination [(page)]="page" [pageSize]="pageSize()" [collectionSize]="total()"
+                (pageChange)="onPageChange($event)" [maxSize]="5" [rotate]="true" [ellipses]="false"
+                [boundaryLinks]="true">
+            </ngb-pagination>
+        </div>
+    </div>
+    }
+</div>
+
+<!-- Modal Template -->
+<ng-template #content let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title">{{ modalTitle }}</h4>
+        <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+    </div>
+    <div class="modal-body">
+        <form>
+            <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" class="form-control" id="name" [(ngModel)]="selectedTemper.name" name="name"
+                    required>
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="isActive" [(ngModel)]="selectedTemper.is_active"
+                    name="isActive">
+                <label class="form-check-label" for="isActive">Is Active</label>
+            </div>
+            <div class="mb-3">
+                <label for="phones" class="form-label">Supported Phones (/ separated)</label>
+                <textarea class="form-control" id="phones" [(ngModel)]="phonesString" name="phones" rows="3"></textarea>
+                <div class="form-text">Enter phone names separated by /. The temper name itself is added
+                    automatically.</div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="modal.dismiss('Close click')">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="saveTemper(modal)">Save</button>
+    </div>
+</ng-template>

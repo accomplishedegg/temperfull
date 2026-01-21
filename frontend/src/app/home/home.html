@@ -1,0 +1,34 @@
+<app-navbar></app-navbar>
+
+<div class="container text-center py-5">
+    <div class="card shadow border-0 p-5 bg-white rounded-3">
+        <div class="mb-4">
+            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center"
+                style="width: 80px; height: 80px;">
+                <i class="fs-1">👋</i>
+            </div>
+        </div>
+        <h1 class="display-4 fw-bold mb-3">Welcome, {{ auth.currentUser?.name || 'User' }}!</h1>
+        <p class="lead text-muted mb-4">What would you like to do today?</p>
+
+        <div class="mb-4 d-grid gap-3 d-sm-flex justify-content-sm-center">
+            <a routerLink="/search" class="btn btn-primary btn-lg px-4 gap-3">
+                Search Temper
+            </a>
+            <a routerLink="/my-subscriptions" class="btn btn-outline-primary btn-lg px-4">
+                My Subscriptions
+            </a>
+        </div>
+
+        <div *ngIf="auth.currentUser?.role === 'admin' || auth.currentUser?.role === 'sales_manager'"
+            class="mt-5 pt-4 border-top">
+            <h5 class="text-muted mb-3">Admin Actions</h5>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a routerLink="/manage-temper" class="btn btn-sm btn-outline-secondary">Manage Temper</a>
+                <a routerLink="/manage-users" class="btn btn-sm btn-outline-secondary">Manage Users</a>
+                <a routerLink="/manage-leads" class="btn btn-sm btn-outline-secondary">Manage Leads</a>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,6 @@
+/* Add any navbar specific styles here */
+.nav-link.active {
+    font-weight: bold;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}

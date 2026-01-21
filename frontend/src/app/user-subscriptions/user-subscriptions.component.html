@@ -1,0 +1,79 @@
+<app-navbar></app-navbar>
+
+<div class="container mt-4">
+    <h2 class="mb-4">Manage Subscriptions</h2>
+
+    <!-- My Subscriptions Section -->
+    <div class="card shadow-sm mb-5">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">My Subscriptions</h5>
+        </div>
+        <div class="card-body">
+            @if (mySubscriptions().length > 0) {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Plan Name</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Days</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (sub of mySubscriptions(); track $index) {
+                        <tr>
+                            <td class="fw-bold">{{ sub.plan_name }}</td>
+                            <td>{{ sub.start_date | date }}</td>
+                            <td>{{ sub.end_date | date }}</td>
+                            <td>{{ sub.plan_days }} Days</td>
+                            <td>
+                                <span class="badge" [class.bg-success]="sub.is_active"
+                                    [class.bg-secondary]="!sub.is_active">
+                                    {{ sub.is_active ? 'Active' : 'Expired/Inactive' }}
+                                </span>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            } @else {
+            <div class="text-center py-4 text-muted">
+                <p>You have no active subscriptions.</p>
+            </div>
+            }
+        </div>
+    </div>
+
+    <!-- Available Plans Section -->
+    <h3 class="mb-4">Available Plans</h3>
+    <div class="row">
+        @for (plan of publicPlans(); track plan.id) {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-white text-center py-4 border-bottom-0">
+                    <h4 class="card-title fw-bold text-primary">{{ plan.name }}</h4>
+                    <h1 class="card-price display-6 mt-3">₹{{ plan.price }}<span class="text-muted fs-6 fw-normal">/
+                            {{ plan.number_of_days }} days</span></h1>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mt-3 mb-4 text-center">
+                        <li>Access to full search</li>
+                        <li>{{ plan.number_of_days }} days validity</li>
+                        <li>Premium Support</li>
+                    </ul>
+                    <div class="d-grid gap-2">
+                        <a href="tel:+919876543210" class="btn btn-outline-primary btn-lg">Contact Sales</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        } @empty {
+        <div class="col-12">
+            <p class="text-center text-muted">No plans available at the moment.</p>
+        </div>
+        }
+    </div>
+</div>

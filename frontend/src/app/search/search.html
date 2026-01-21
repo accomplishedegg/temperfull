@@ -1,0 +1,47 @@
+<app-navbar></app-navbar>
+
+<div class="container mt-4">
+    <h2 class="mb-4">Search Temper</h2>
+
+    <!-- Search Bar with Live Dropdown -->
+    <div class="search-container mb-4">
+        <div class="input-group shadow-sm">
+            <span class="input-group-text bg-white border-end-0">
+                <i class="bi bi-search"></i>
+            </span>
+            <input type="text" class="form-control form-control-lg border-start-0"
+                placeholder="Start typing to search..." [(ngModel)]="query" (input)="onSearchInput()" (blur)="onBlur()">
+        </div>
+
+        <!-- Dropdown Results -->
+        <div class="search-dropdown" *ngIf="showDropdown">
+            @for (item of results(); track item.id) {
+            <div class="search-item" (click)="selectTemper(item)">
+                <div class="fw-bold">{{ item.name }}</div>
+                <div class="small text-muted">ID: {{ item.id }}</div>
+            </div>
+            }
+        </div>
+    </div>
+
+    <!-- Selected Temper Details -->
+    <div class="card shadow-sm border-0" *ngIf="selectedTemper()">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Selected Temper Details</h4>
+        </div>
+        <div class="card-body">
+            <h3 class="card-title text-primary mb-3">Use <strong>{{ selectedTemper().name }}</strong> temper</h3>
+
+            <div class="mb-3">
+                <h5>Supported Phones:</h5>
+                <div class="d-flex flex-wrap gap-2">
+                    @for (phone of selectedTemper().supportedPhones; track $index) {
+                    <span class="badge bg-secondary p-2">{{ phone }}</span>
+                    } @empty {
+                    <span class="text-muted">No specific phones listed.</span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

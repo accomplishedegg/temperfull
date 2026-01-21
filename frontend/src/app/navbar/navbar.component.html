@@ -1,0 +1,45 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4 shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold" routerLink="/home">TemperSearch</a>
+        <button class="navbar-toggler" type="button" (click)="isMenuCollapsed = !isMenuCollapsed"
+            aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" [ngbCollapse]="isMenuCollapsed" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" routerLink="/home" routerLinkActive="active">Home</a>
+                </li>
+                @if (auth.currentUser?.role === 'admin' || auth.currentUser?.role === 'sales_manager') {
+                <li class="nav-item">
+                    <a class="nav-link" routerLink="/manage-temper" routerLinkActive="active">Manage Temper</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" routerLink="/manage-users" routerLinkActive="active">Manage Users</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" routerLink="/manage-leads" routerLinkActive="active">Manage Leads</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" routerLink="/manage-subscription-types"
+                        routerLinkActive="active">Subscriptions</a>
+                </li>
+                }
+                <li class="nav-item">
+                    <a class="nav-link" routerLink="/search" routerLinkActive="active">Search</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" routerLink="/my-subscriptions" routerLinkActive="active">My Subscriptions</a>
+                </li>
+            </ul>
+            <div class="d-flex align-items-center gap-3">
+                @if (auth.currentUser) {
+                <span class="text-white small">
+                    {{ auth.currentUser.email }}
+                </span>
+                }
+                <button class="btn btn-outline-light btn-sm" (click)="logout()">Sign Out</button>
+            </div>
+        </div>
+    </div>
+</nav>

@@ -1,0 +1,99 @@
+<div class="container d-flex align-items-center justify-content-center min-vh-100">
+    <div class="card shadow-sm border-0 p-4" style="width: 100%; max-width: 400px;">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Welcome Back</h2>
+            <p class="text-muted">Please enter your details to sign in</p>
+        </div>
+
+        @if (errorMessage()) {
+        <div class="alert alert-danger py-2 small mb-3">
+            {{ errorMessage() }}
+        </div>
+        }
+
+        @if (!isBlocked()) {
+        <form (submit)="handleLogin(); $event.preventDefault()">
+            <div class="mb-3">
+                <label class="form-label small fw-bold">Email Address</label>
+                <input type="email" class="form-control" [ngModel]="email()" (ngModelChange)="email.set($event)"
+                    name="email" required placeholder="name@company.com">
+            </div>
+
+            @if (!isOtpMode()) {
+            <div class="mb-3">
+                <label class="form-label small fw-bold">Password</label>
+                <input type="password" class="form-control" [ngModel]="password()"
+                    (ngModelChange)="password.set($event)" name="password" required placeholder="••••••••">
+            </div>
+            } @else if (otpSent()) {
+            <div class="mb-3">
+                <label class="form-label small fw-bold">One-Time Password (OTP)</label>
+                <input type="text" class="form-control" [ngModel]="otp()" (ngModelChange)="otp.set($event)" name="otp"
+                    required placeholder="6-digit code">
+                <div class="form-text small">We've sent a code to your email.</div>
+            </div>
+            }
+
+            <button type="submit" class="btn btn-primary w-100 mb-3" [disabled]="loading()">
+                @if (loading()) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                }
+                {{ isOtpMode() ? (otpSent() ? 'Verify & Login' : 'Send OTP') : 'Sign In' }}
+            </button>
+
+            <div class="text-center">
+                <a href="javascript:void(0)" (click)="toggleMode()" class="small text-decoration-none">
+                    {{ isOtpMode() ? 'Login with Password instead' : 'Login with Email OTP instead' }}
+                </a>
+            </div>
+        </form>
+        } @else {
+        <!-- Session Block Screen -->
+        <div class="text-center">
+            <i class="bi bi-shield-lock text-warning display-4 mb-3"></i>
+            <h4 class="fw-bold text-danger">Session Limit Exceeded</h4>
+            <p class="small text-muted mb-4">
+                You have <strong>{{ sessions().length }}</strong> active sessions. You must delete until you have 2 or
+                fewer.
+            </p>
+
+            <div class="list-group list-group-flush mb-4 text-start">
+                @for (session of sessions(); track session.id) {
+                <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-3">
+                    <div>
+                        <div class="fw-bold small">{{ session.device }}</div>
+                        <div class="text-muted x-small">IP: {{ session.ip }} • {{ session.created_at | date:'short' }}
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline-danger btn-sm rounded-pill"
+                        (click)="deleteSession(session.id)">
+                        Delete
+                    </button>
+                </div>
+                }
+            </div>
+
+            <button class="btn btn-link link-secondary small p-0" (click)="checkSessions()">
+                <span class="spinning me-1" *ngIf="loading()">↻</span> Refresh Status
+            </button>
+        </div>
+        }
+    </div>
+</div>
+
+<style>
+    .x-small {
+        font-size: 0.75rem;
+    }
+
+    .spinning {
+        display: inline-block;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
